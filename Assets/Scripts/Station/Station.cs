@@ -25,8 +25,6 @@ public class Station : MonoBehaviour, IMovementTarget
 
     public StationType Type => stationType;
     public GameObject AssignedEmployee => assignedEmployee;
-    public TaskStep CurrentTask => currentTask;
-    public float Progress => progress;
     public StationBuffer InputBuffer => inputBuffer;
     public StationBuffer OutputBuffer => outputBuffer;
     public StationAction[] AvailableActions => availableActions;
@@ -77,14 +75,14 @@ public class Station : MonoBehaviour, IMovementTarget
 
         if (assignedEmployee != null)
         {
-            if (currentTask.duration <= 0f)
+            if (currentTask.Duration <= 0f)
             {
                 progress = 1f;
                 CompleteTask();
                 return;
             }
 
-            progress += Time.deltaTime / currentTask.duration;
+            progress += Time.deltaTime / currentTask.Duration;
             if (progress >= 1f)
             {
                 progress = 1f;
@@ -107,7 +105,7 @@ public class Station : MonoBehaviour, IMovementTarget
         assignedEmployee = null;
     }
 
-    public void AssignTask(TaskStep task)
+    void AssignTask(TaskStep task)
     {
         currentTask = task;
         progress = 0f;
@@ -116,7 +114,7 @@ public class Station : MonoBehaviour, IMovementTarget
         SetProgressBarVisible(true);
     }
 
-    public void ClearTask()
+    void ClearTask()
     {
         currentTask = null;
         progress = 0f;
@@ -129,11 +127,11 @@ public class Station : MonoBehaviour, IMovementTarget
     {
         if (currentWork != null)
         {
-            if (outputBuffer != null && currentWork.Step.outputs != null)
+            if (outputBuffer != null && currentWork.Step.Outputs != null)
             {
-                foreach (var stack in currentWork.Step.outputs)
+                foreach (var stack in currentWork.Step.Outputs)
                     Debug.Log($"[Station] '{name}' completed work: producing {stack.amount}x {stack.type} into output buffer.");
-                outputBuffer.AddItems(currentWork.Step.outputs);
+                outputBuffer.AddItems(currentWork.Step.Outputs);
             }
 
             var finishedWork = currentWork;
@@ -173,7 +171,7 @@ public class Station : MonoBehaviour, IMovementTarget
     public void EnqueueWork(StationWorkRequest request)
     {
         if (request == null || request.Step == null) return;
-        Debug.Log($"[Station] Enqueue work on '{name}': step for {request.Step.requiredStation}, duration {request.Step.duration}s, manual={(request.Order == null)}.");
+        Debug.Log($"[Station] Enqueue work on '{name}': step for {request.Step.RequiredStation}, duration {request.Step.Duration}s, manual={(request.Order == null)}.");
         workQueue.Enqueue(request);
         TryStartNextFeasibleWork();
     }
@@ -195,8 +193,8 @@ public class Station : MonoBehaviour, IMovementTarget
             }
             if (request.IsRepeat)
             {
-                bool pantryHasInputs = pantry != null && request.Step.inputs != null && pantry.Inventory.HasAll(request.Step.inputs);
-                bool outputFull = outputBuffer != null && !outputBuffer.CanFit(request.Step.outputs);
+                bool pantryHasInputs = pantry != null && request.Step.Inputs != null && pantry.HasAll(request.Step.Inputs);
+                bool outputFull = outputBuffer != null && !outputBuffer.CanFit(request.Step.Outputs);
                 if (!pantryHasInputs || outputFull)
                 {
                     Debug.Log($"[Station] '{name}' stopping repeat (missing inputs or full output).");
@@ -211,13 +209,13 @@ public class Station : MonoBehaviour, IMovementTarget
     {
         if (request == null || request.Step == null) return false;
         var step = request.Step;
-        if (!inputBuffer.HasAll(step.inputs))
+        if (!inputBuffer.HasAll(step.Inputs))
         {
             if (!request.IsRepeat)
                 Debug.Log($"[Station] '{name}' cannot start work: missing inputs for step on {stationType}.");
             return false;
         }
-        if (!outputBuffer.CanFit(step.outputs))
+        if (!outputBuffer.CanFit(step.Outputs))
         {
             if (!request.IsRepeat)
                 Debug.Log($"[Station] '{name}' cannot start work: output buffer full for step on {stationType}.");
@@ -229,13 +227,13 @@ public class Station : MonoBehaviour, IMovementTarget
     void StartWork(StationWorkRequest request)
     {
         currentWork = request;
-        if (inputBuffer != null && request.Step.inputs != null)
+        if (inputBuffer != null && request.Step.Inputs != null)
         {
-            foreach (var stack in request.Step.inputs)
+            foreach (var stack in request.Step.Inputs)
                 Debug.Log($"[Station] '{name}' starting work: consuming {stack.amount}x {stack.type} from input buffer.");
-            inputBuffer.RemoveItems(request.Step.inputs);
+            inputBuffer.RemoveItems(request.Step.Inputs);
         }
-        Debug.Log($"[Station] '{name}' starting work: step for {request.Step.requiredStation}, duration {request.Step.duration}s, manual={(request.Order == null)}.");
+        Debug.Log($"[Station] '{name}' starting work: step for {request.Step.RequiredStation}, duration {request.Step.Duration}s, manual={(request.Order == null)}.");
         AssignTask(request.Step);
     }
 
@@ -243,15 +241,15 @@ public class Station : MonoBehaviour, IMovementTarget
     {
         if (currentWork != null && currentWork.Order == null)
         {
-            if (currentWork.Step.inputs != null)
+            if (currentWork.Step.Inputs != null)
             {
                 if (pantry != null)
                 {
-                    foreach (var stack in currentWork.Step.inputs)
-                        pantry.Inventory.Add(stack.type, stack.amount);
+                    foreach (var stack in currentWork.Step.Inputs)
+                        pantry.Add(stack.type, stack.amount);
                 }
                 else if (inputBuffer != null)
-                    inputBuffer.AddItems(currentWork.Step.inputs);
+                    inputBuffer.AddItems(currentWork.Step.Inputs);
             }
             Debug.Log($"[Station] '{name}' cancelling manual work in progress.");
             currentWork = null;

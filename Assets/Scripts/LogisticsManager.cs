@@ -21,20 +21,20 @@ public class LogisticsManager : MonoBehaviour
                 foreach (var work in station.PendingWork)
                 {
                     var step = work.Step;
-                    if (step == null || step.inputs == null) continue;
+                    if (step == null || step.Inputs == null) continue;
 
-                    for (int i = 0; i < step.inputs.Length; i++)
+                    for (int i = 0; i < step.Inputs.Length; i++)
                     {
-                        var req = step.inputs[i];
-                        int already = input.Inventory.GetAmount(req.type);
+                        var req = step.Inputs[i];
+                        int already = input.GetAmount(req.type);
                         int needed = req.amount - already;
                         if (needed <= 0) continue;
 
-                        int moved = pantry.Inventory.Remove(req.type, needed);
+                        int moved = pantry.Remove(req.type, needed);
                         if (moved > 0)
                         {
+                            input.Add(req.type, moved, input.MaxTotalAmount);
                             Debug.Log($"[Logistics] Moved {moved}x {req.type} from pantry to input buffer of station '{station.name}'.");
-                            input.Inventory.Add(req.type, moved, input.MaxTotalAmount);
                         }
                     }
                 }
@@ -48,15 +48,12 @@ public class LogisticsManager : MonoBehaviour
                 {
                     if (type == ItemType.None) continue;
 
-                    int amount = output.Inventory.GetAmount(type);
+                    int amount = output.GetAmount(type);
                     if (amount <= 0) continue;
 
-                    int removed = output.Inventory.Remove(type, amount);
-                    if (removed > 0)
-                    {
-                        Debug.Log($"[Logistics] Moved {removed}x {type} from output buffer of station '{station.name}' to pantry.");
-                        pantry.Inventory.Add(type, removed);
-                    }
+                    output.Remove(type, amount);
+                    pantry.Add(type, amount);
+                    Debug.Log($"[Logistics] Moved {amount}x {type} from output buffer of station '{station.name}' to pantry.");
                 }
             }
 

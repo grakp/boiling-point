@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Burger
   m_EditorClassIdentifier: Assembly-CSharp::Recipe
   recipeName: Burger
+  baseCost: 10
   displayIcon: {fileID: -5752813370923463679, guid: a2588eaba6b1349ab873ea5311a8984f, type: 3}
   steps:
   - requiredStation: 0

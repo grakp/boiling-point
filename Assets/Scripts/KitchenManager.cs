@@ -16,25 +16,25 @@ public class KitchenManager : MonoBehaviour
     {
         if (startFirstRecipeOnLoad && availableRecipes != null && availableRecipes.Length > 0)
         {
-            Debug.Log($"[KitchenManager] Starting order on load: {availableRecipes[0].recipeName}");
+            Debug.Log($"[KitchenManager] Starting order on load: {availableRecipes[0].RecipeName}");
             StartOrder(availableRecipes[0]);
         }
     }
 
     public void StartOrder(Recipe recipe)
     {
-        if (recipe == null || recipe.steps == null || recipe.steps.Length == 0)
+        if (recipe == null || recipe.Steps == null || recipe.Steps.Length == 0)
         {
             Debug.LogWarning("[KitchenManager] StartOrder skipped: recipe null or has no steps.");
             return;
         }
 
-        Debug.Log($"[KitchenManager] Starting order: {recipe.recipeName} ({recipe.steps.Length} steps)");
+        Debug.Log($"[KitchenManager] Starting order: {recipe.RecipeName} ({recipe.Steps.Length} steps)");
         var order = new Order(recipe, GetStation);
         order.OnComplete += o =>
         {
             activeOrders.Remove(o);
-            Debug.Log($"[KitchenManager] Order complete: {recipe.recipeName}");
+            Debug.Log($"[KitchenManager] Order complete: {recipe.RecipeName}");
             OnOrderComplete?.Invoke(o);
         };
         activeOrders.Add(order);
@@ -56,7 +56,7 @@ public class KitchenManager : MonoBehaviour
         return null;
     }
 
-    public IReadOnlyList<Order> GetActiveOrders()
+    internal IReadOnlyList<Order> GetActiveOrders()
     {
         return activeOrders;
     }

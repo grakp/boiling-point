@@ -7,7 +7,20 @@ public class StationBuffer : MonoBehaviour
     [SerializeField] Inventory inventory = new Inventory();
 
     public int MaxTotalAmount => maxTotalAmount;
-    public Inventory Inventory => inventory;
+
+    public int GetAmount(ItemType type) => inventory != null ? inventory.GetAmount(type) : 0;
+
+    public void Add(ItemType type, int amount, int? maxTotal = null)
+    {
+        if (inventory == null) return;
+        inventory.Add(type, amount, maxTotal ?? maxTotalAmount);
+    }
+
+    public void Remove(ItemType type, int amount)
+    {
+        if (inventory == null) return;
+        inventory.Remove(type, amount);
+    }
 
     public bool HasAll(ItemStack[] requirements)
     {

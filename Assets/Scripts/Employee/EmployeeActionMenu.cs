@@ -39,16 +39,16 @@ public class EmployeeActionMenu : MonoBehaviour
         {
             var action = actions[i];
             if (action == null) continue;
-            if (action.requiredStation != station.Type) continue;
+            if (action.RequiredStation != station.Type) continue;
 
             var button = Instantiate(actionButtonPrefab, container);
             spawnedButtons.Add(button);
 
             var label = button.GetComponentInChildren<Text>();
-            if (label != null) label.text = action.actionName;
+            if (label != null) label.text = action.ActionName;
 
             var image = button.GetComponentInChildren<Image>();
-            if (image != null && action.icon != null) image.sprite = action.icon;
+            if (image != null && action.Icon != null) image.sprite = action.Icon;
 
             var handler = button.gameObject.AddComponent<EmployeeActionMenuButtonHandler>();
             handler.Initialize(this, action);
@@ -83,17 +83,11 @@ public class EmployeeActionMenu : MonoBehaviour
         currentStation.CancelManualWork();
         currentStation.ClearPendingManualRequests();
 
-        var step = new TaskStep
-        {
-            requiredStation = action.requiredStation,
-            duration = action.duration,
-            inputs = action.inputs,
-            outputs = action.outputs
-        };
+        var step = new TaskStep(action.RequiredStation, action.Duration, action.Inputs, action.Outputs);
 
         var request = new StationWorkRequest(null, -1, step, isRepeat: repeat);
         var who = currentEmployee != null ? currentEmployee.name : "(no employee)";
-        Debug.Log($"[ActionMenu] {who} chose action '{action.actionName}' on station '{currentStation.name}'.");
+        Debug.Log($"[ActionMenu] {who} chose action '{action.ActionName}' on station '{currentStation.name}'.");
         currentStation.EnqueueWork(request);
 
         if (selectionManager != null)

@@ -39,7 +39,7 @@ public class OrderQueueUI : MonoBehaviour
                 rowRect.anchoredPosition = new Vector2(padding + i * slotWidth, -padding);
             }
             var order = queue[i];
-            rows[i].SetIcon(order.Recipe != null ? order.Recipe.displayIcon : null);
+            rows[i].SetIcon(order.Recipe != null ? order.Recipe.DisplayIcon : null);
             rows[i].SetProgress(order.PatienceSeconds > 0 ? order.TimeRemaining / order.PatienceSeconds : 0f);
         }
     }
