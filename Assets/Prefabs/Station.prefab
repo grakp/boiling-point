@@ -92,6 +92,53 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &497688010306569288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6080025449234900177}
+  - component: {fileID: 5263980389220152002}
+  m_Layer: 0
+  m_Name: OutputBuffer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6080025449234900177
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497688010306569288}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 301445321260111667}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5263980389220152002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497688010306569288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a27ed7321e6914c45b97ee132af579a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StationBuffer
+  maxTotalAmount: 10
+  inventory:
+    stacks: []
 --- !u!1 &6180188799634996887
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +230,53 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &7096836865889968562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1390190413030836043}
+  - component: {fileID: 168173040745447419}
+  m_Layer: 0
+  m_Name: InputBuffer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1390190413030836043
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7096836865889968562}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 301445321260111667}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &168173040745447419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7096836865889968562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a27ed7321e6914c45b97ee132af579a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StationBuffer
+  maxTotalAmount: 10
+  inventory:
+    stacks: []
 --- !u!1 &7739180769877487806
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,6 +402,8 @@ Transform:
   - {fileID: 2865088730774516925}
   - {fileID: 1936730770716088642}
   - {fileID: 9214484448408172304}
+  - {fileID: 1390190413030836043}
+  - {fileID: 6080025449234900177}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &4236370148043158643
@@ -374,6 +470,10 @@ MonoBehaviour:
   progressFillFullScale: {x: 1, y: 1, z: 1}
   standPoint: {fileID: 0}
   highlightVisual: {fileID: 2092431697193354792}
+  inputBuffer: {fileID: 168173040745447419}
+  outputBuffer: {fileID: 5263980389220152002}
+  pantry: {fileID: 0}
+  availableActions: []
 --- !u!1 &8688714841189127493
 GameObject:
   m_ObjectHideFlags: 0
@@ -453,7 +553,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 31f3f1bd9cf534f15856476ef17535ef, type: 3}
   m_Color: {r: 0.33045566, g: 0.8867924, b: 0.34593806, a: 1}

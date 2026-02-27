@@ -1,17 +1,34 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class EmployeeSelectionManager : MonoBehaviour
 {
     const string EmployeeTag = "Employee";
     const string MovementTargetTag = "MovementTarget";
 
+    [SerializeField] EmployeeActionMenu actionMenu;
+
     Employee selectedEmployee;
     IMovementTarget lastHoveredTarget;
+
+    public void DeselectEmployee()
+    {
+        if (selectedEmployee != null)
+            selectedEmployee.SetSelected(false);
+
+        selectedEmployee = null;
+
+        if (actionMenu != null)
+            actionMenu.Hide();
+    }
 
     void Update()
     {
         if (Mouse.current == null) return;
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
 
         Vector2 screenPos = Mouse.current.position.ReadValue();
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
@@ -56,17 +73,47 @@ public class EmployeeSelectionManager : MonoBehaviour
 
             if (hitEmployee != null)
             {
-                if (selectedEmployee != null) selectedEmployee.SetSelected(false);
-                selectedEmployee = hitEmployee;
-                selectedEmployee.SetSelected(true);
+                if (selectedEmployee == hitEmployee)
+                {
+                    DeselectEmployee();
+                }
+                else
+                {
+                    if (selectedEmployee != null)
+                        selectedEmployee.SetSelected(false);
+                    selectedEmployee = hitEmployee;
+                    selectedEmployee.SetSelected(true);
+
+                    if (actionMenu != null)
+                    {
+                        foreach (var station in Object.FindObjectsByType<Station>(FindObjectsSortMode.None))
+                        {
+                            if (station != null && station.AssignedEmployee == selectedEmployee.gameObject &&
+                                station.AvailableActions != null && station.AvailableActions.Length > 0)
+                            {
+                                actionMenu.Show(station, selectedEmployee, station.AvailableActions);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             else if (hitTarget != null && selectedEmployee != null)
             {
                 UnassignFromStations(selectedEmployee.gameObject);
                 Vector2 targetPos = hitTarget.GetTargetPosition(worldPos);
                 selectedEmployee.transform.position = new Vector3(targetPos.x, targetPos.y, selectedEmployee.transform.position.z);
+
                 if (hitTarget is Station station)
+                {
                     station.AssignEmployee(selectedEmployee.gameObject);
+                    if (actionMenu != null && station.AvailableActions != null && station.AvailableActions.Length > 0)
+                        actionMenu.Show(station, selectedEmployee, station.AvailableActions);
+                }
+                else if (actionMenu != null)
+                {
+                    actionMenu.Hide();
+                }
             }
         }
 

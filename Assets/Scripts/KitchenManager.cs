@@ -55,4 +55,9 @@ public class KitchenManager : MonoBehaviour
                 return s;
         return null;
     }
+
+    public IReadOnlyList<Order> GetActiveOrders()
+    {
+        return activeOrders;
+    }
 }

@@ -6,4 +6,6 @@ public class TaskStep
 {
     public StationType requiredStation;
     public float duration;
+    public ItemStack[] inputs;
+    public ItemStack[] outputs;
 }

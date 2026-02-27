@@ -6,7 +6,6 @@ public class Order
     readonly Recipe recipe;
     readonly Func<StationType, Station> getStation;
     int currentStepIndex;
-    Station currentStation;
 
     public Order(Recipe recipe, Func<StationType, Station> getStation)
     {
@@ -19,10 +18,10 @@ public class Order
     public void Begin()
     {
         currentStepIndex = 0;
-        AssignCurrentStep();
+        EnqueueCurrentStepWork();
     }
 
-    void AssignCurrentStep()
+    void EnqueueCurrentStepWork()
     {
         if (currentStepIndex >= recipe.steps.Length)
         {
@@ -32,25 +31,28 @@ public class Order
         }
 
         TaskStep step = recipe.steps[currentStepIndex];
-        currentStation = getStation(step.requiredStation);
-        if (currentStation == null)
+        Station station = getStation(step.requiredStation);
+        if (station == null)
         {
             Debug.LogWarning($"[Order] No station found for {step.requiredStation}, step {currentStepIndex + 1}");
             return;
         }
 
-        Debug.Log($"[Order] Step {currentStepIndex + 1}/{recipe.steps.Length}: {step.requiredStation} ({step.duration}s) -> {currentStation.name}");
-        currentStation.OnTaskComplete += OnStationComplete;
-        currentStation.AssignTask(step);
+        Debug.Log($"[Order] Enqueue step {currentStepIndex + 1}/{recipe.steps.Length}: {step.requiredStation} ({step.duration}s) -> {station.name}");
+        var request = new StationWorkRequest(this, currentStepIndex, step);
+        station.EnqueueWork(request);
     }
 
-    void OnStationComplete(Station station)
+    public void HandleStationWorkCompleted(StationWorkRequest request)
     {
-        if (station != currentStation) return;
-        Debug.Log($"[Order] Step complete at {station.name}, advancing");
-        currentStation.OnTaskComplete -= OnStationComplete;
-        currentStation = null;
-        currentStepIndex++;
-        AssignCurrentStep();
+        if (request == null || request.Order != this) return;
+        if (request.StepIndex != currentStepIndex)
+        {
+            // Out-of-order completion; move forward if this step is ahead.
+            if (request.StepIndex < currentStepIndex) return;
+        }
+
+        currentStepIndex = request.StepIndex + 1;
+        EnqueueCurrentStepWork();
     }
 }
