@@ -6,18 +6,11 @@ public class GridManager : MonoBehaviour
 {
     public static GridManager Instance { get; private set; }
 
-    [Header("Tilemap (optional)")]
+    [Header("Tilemap")]
     [SerializeField] Tilemap floorTilemap;
     [SerializeField] Tilemap obstacleTilemap;
 
-    [Header("Fallback when no Tilemap")]
-    [SerializeField] float cellSize = 1f;
-    [SerializeField] Vector2 origin = Vector2.zero;
-    [SerializeField] int gridMinX = -50;
-    [SerializeField] int gridMaxX = 50;
-    [SerializeField] int gridMinY = -50;
-    [SerializeField] int gridMaxY = 50;
-
+    // set of cells that are blocked (obstacles or occupied by employees)
     readonly HashSet<Vector2Int> blockedCells = new();
     readonly Dictionary<Employee, Vector2Int> employeeCells = new();
 
@@ -37,59 +30,57 @@ public class GridManager : MonoBehaviour
             Instance = null;
     }
 
+    // convert world position to cell position
     public Vector2Int WorldToCell(Vector2 world)
     {
-        if (floorTilemap != null)
-        {
-            var c = floorTilemap.WorldToCell(new Vector3(world.x, world.y, 0));
-            return new Vector2Int(c.x, c.y);
-        }
-        float x = (world.x - origin.x) / cellSize;
-        float y = (world.y - origin.y) / cellSize;
-        return new Vector2Int(Mathf.FloorToInt(x), Mathf.FloorToInt(y));
+        if (floorTilemap == null) return Vector2Int.zero;
+        var c = floorTilemap.WorldToCell(new Vector3(world.x, world.y, 0));
+        return new Vector2Int(c.x, c.y);
     }
 
+    // convert cell position to world position
     public Vector2 CellToWorld(Vector2Int cell)
     {
-        if (floorTilemap != null)
-        {
-            var w = floorTilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
-            return new Vector2(w.x, w.y);
-        }
-        return origin + new Vector2((cell.x + 0.5f) * cellSize, (cell.y + 0.5f) * cellSize);
+        if (floorTilemap == null) return Vector2.zero;
+        var w = floorTilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
+        return new Vector2(w.x, w.y);
     }
 
+    // get cell size
     public float CellSize
     {
         get
         {
-            if (floorTilemap == null) return cellSize;
+            if (floorTilemap == null) return 1f;
             var grid = floorTilemap.layoutGrid;
             if (grid != null && grid.cellSize.x > 0.001f) return grid.cellSize.x;
-            return cellSize;
+            return 1f;
         }
     }
 
+    // get tilemap bounds
     public BoundsInt? TilemapBounds => floorTilemap != null ? floorTilemap.cellBounds : null;
 
+    // get grid bounds
     public void GetGridBounds(out int minX, out int minY, out int maxX, out int maxY)
     {
-        if (floorTilemap != null)
+        if (floorTilemap == null)
         {
-            var b = floorTilemap.cellBounds;
-            if (b.xMax > b.xMin && b.yMax > b.yMin)
-            {
-                minX = b.xMin;
-                minY = b.yMin;
-                maxX = b.xMax - 1;
-                maxY = b.yMax - 1;
-                return;
-            }
+            minX = minY = maxX = maxY = 0;
+            return;
         }
-        minX = gridMinX;
-        minY = gridMinY;
-        maxX = gridMaxX;
-        maxY = gridMaxY;
+        var b = floorTilemap.cellBounds;
+        if (b.xMax > b.xMin && b.yMax > b.yMin)
+        {
+            minX = b.xMin;
+            minY = b.yMin;
+            maxX = b.xMax - 1;
+            maxY = b.yMax - 1;
+        }
+        else
+        {
+            minX = minY = maxX = maxY = 0;
+        }
     }
 
     public void RegisterBlockedCells(IEnumerable<Vector2Int> cells)
@@ -120,6 +111,7 @@ public class GridManager : MonoBehaviour
         if (employee != null) employeeCells.Remove(employee);
     }
 
+    // check if cell is occupied by an employee
     public bool IsCellOccupied(Vector2Int cell, Employee exclude)
     {
         foreach (var kv in employeeCells)
@@ -128,19 +120,21 @@ public class GridManager : MonoBehaviour
         return false;
     }
 
+    // check if cell is in bounds
     public bool IsInBounds(Vector2Int cell)
     {
-        if (floorTilemap != null)
-            return floorTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0));
-        return cell.x >= gridMinX && cell.x <= gridMaxX && cell.y >= gridMinY && cell.y <= gridMaxY;
+        if (floorTilemap == null) return false;
+        return floorTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0));
     }
 
+    // check if cell is an obstacle tile
     bool IsObstacleTileAt(Vector2Int cell)
     {
         if (obstacleTilemap == null) return false;
         return obstacleTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0));
     }
 
+    // check if cell is walkable
     public bool IsWalkable(Vector2Int cell, Vector2Int goalCell, Employee excludeEmployee)
     {
         if (cell == goalCell) return true;
@@ -150,10 +144,12 @@ public class GridManager : MonoBehaviour
         return !IsCellOccupied(cell, excludeEmployee);
     }
 
+    // get nearest walkable cell
     public Vector2Int? GetNearestWalkableCell(Vector2Int cell, int maxRadius = 25)
     {
-        if (floorTilemap == null) return IsInBounds(cell) ? cell : (Vector2Int?)null;
+        if (floorTilemap == null) return null;
         if (floorTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0))) return cell;
+        // check cells in radius around given cell
         for (int r = 1; r <= maxRadius; r++)
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -r; dy <= r; dy++)

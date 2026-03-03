@@ -33,6 +33,7 @@ public class EmployeeSelectionManager : MonoBehaviour
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
         Collider2D[] hits = Physics2D.OverlapPointAll(worldPos);
 
+        // handle left click to select employee
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             Employee hitEmployee = GetHitEmployee(hits);
@@ -62,6 +63,7 @@ public class EmployeeSelectionManager : MonoBehaviour
             }
         }
 
+        // handle right click to move employee to target
         if (Mouse.current.rightButton.wasPressedThisFrame && selectedEmployee != null)
         {
             var movement = selectedEmployee.GetComponent<EmployeeMovement>();
@@ -87,6 +89,7 @@ public class EmployeeSelectionManager : MonoBehaviour
                     goalCell = GridManager.Instance.WorldToCell(worldPos);
                     targetWorld = (Vector2)GridManager.Instance.CellToWorld(goalCell);
                 }
+                // check if goal cell is in bounds
                 if (!GridManager.Instance.IsInBounds(goalCell))
                 {
                     var snapped = GridManager.Instance.GetNearestWalkableCell(goalCell);
@@ -94,6 +97,7 @@ public class EmployeeSelectionManager : MonoBehaviour
                     goalCell = snapped.Value;
                     targetWorld = (Vector2)GridManager.Instance.CellToWorld(goalCell);
                 }
+                // unassign employee from stations
                 UnassignFromStations(selectedEmployee.gameObject);
                 movement.OnArrived -= HandleEmployeeArrived;
                 movement.OnArrived += HandleEmployeeArrived;
@@ -152,14 +156,18 @@ public class EmployeeSelectionManager : MonoBehaviour
 
     void HandleEmployeeArrived(Employee emp, IMovementTarget target)
     {
+        // remove employee movement arrived event
         var movement = emp.GetComponent<EmployeeMovement>();
         if (movement != null) movement.OnArrived -= HandleEmployeeArrived;
+        // assign employee to station if target is a station
         if (target is Station station)
         {
             station.AssignEmployee(emp.gameObject);
+            // show action menu if station has available actions
             if (actionMenu != null && station.AvailableActions != null && station.AvailableActions.Length > 0)
                 actionMenu.Show(station, emp, station.AvailableActions);
         }
+        // hide action menu if target is not a station
         else if (actionMenu != null)
             actionMenu.Hide();
     }

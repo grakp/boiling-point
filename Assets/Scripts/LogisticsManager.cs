@@ -14,7 +14,7 @@ public class LogisticsManager : MonoBehaviour
         {
             if (station == null) continue;
 
-            // 1. Fill station input buffer for pending work from pantry
+            // fill station input buffer for pending work from pantry
             var input = station.InputBuffer;
             if (input != null)
             {
@@ -34,13 +34,12 @@ public class LogisticsManager : MonoBehaviour
                         if (moved > 0)
                         {
                             input.Add(req.type, moved, input.MaxTotalAmount);
-                            Debug.Log($"[Logistics] Moved {moved}x {req.type} from pantry to input buffer of station '{station.name}'.");
                         }
                     }
                 }
             }
 
-            // 2. Move everything from station output buffer back into pantry
+            // move everything from station output buffer back into pantry
             var output = station.OutputBuffer;
             if (output != null)
             {
@@ -53,11 +52,10 @@ public class LogisticsManager : MonoBehaviour
 
                     output.Remove(type, amount);
                     pantry.Add(type, amount);
-                    Debug.Log($"[Logistics] Moved {amount}x {type} from output buffer of station '{station.name}' to pantry.");
                 }
             }
 
-            // 3. Try to start any newly feasible work on this station
+            // try to start any newly feasible work on this station
             station.TryStartNextFeasibleWork();
         }
     }

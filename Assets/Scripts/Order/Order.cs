@@ -23,6 +23,7 @@ public class Order
 
     void EnqueueCurrentStepWork()
     {
+        // check if all steps are done
         if (currentStepIndex >= recipe.Steps.Length)
         {
             Debug.Log($"[Order] All steps done for {recipe.RecipeName}");
@@ -30,10 +31,12 @@ public class Order
             return;
         }
 
+        // get current step
         var action = recipe.Steps[currentStepIndex];
         if (action == null) return;
         TaskStep step = TaskStep.FromAction(action);
         Station station = getStation(step.RequiredStation);
+        // check if station is found
         if (station == null)
         {
             Debug.LogWarning($"[Order] No station found for {step.RequiredStation}, step {currentStepIndex + 1}");
@@ -41,6 +44,7 @@ public class Order
         }
 
         Debug.Log($"[Order] Enqueue step {currentStepIndex + 1}/{recipe.Steps.Length}: {step.RequiredStation} ({step.Duration}s) -> {station.name}");
+        // create new work request
         var request = new StationWorkRequest(this, currentStepIndex, step);
         station.EnqueueWork(request);
     }
@@ -50,7 +54,7 @@ public class Order
         if (request == null || request.Order != this) return;
         if (request.StepIndex != currentStepIndex)
         {
-            // Out-of-order completion; move forward if this step is ahead.
+            // out-of-order completion; move forward if this step is ahead
             if (request.StepIndex < currentStepIndex) return;
         }
 

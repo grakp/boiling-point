@@ -36,6 +36,7 @@ public class Inventory
 
     public int GetAmount(ItemType type)
     {
+        // calculate total amount of items in inventory
         int total = 0;
         for (int i = 0; i < stacks.Count; i++)
         {

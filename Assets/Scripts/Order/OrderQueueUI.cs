@@ -17,11 +17,13 @@ public class OrderQueueUI : MonoBehaviour
         if (queueManager == null || container == null) return;
 
         var queue = queueManager.OrderQueue;
+        // create new rows for new orders
         while (rows.Count < queue.Count)
         {
             var row = Instantiate(rowPrefab, container);
             rows.Add(row);
         }
+        // destroy rows for removed orders
         while (rows.Count > queue.Count)
         {
             var last = rows.Count - 1;
@@ -29,6 +31,7 @@ public class OrderQueueUI : MonoBehaviour
             rows.RemoveAt(last);
         }
 
+        // update rows for existing orders
         for (int i = 0; i < queue.Count; i++)
         {
             var rowRect = rows[i].transform as RectTransform;

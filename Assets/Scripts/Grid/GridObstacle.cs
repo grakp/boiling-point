@@ -33,6 +33,7 @@ public class GridObstacle : MonoBehaviour
         if (registeredCells != null) return;
         var origin = GridManager.Instance.WorldToCell(transform.position);
         registeredCells = new List<Vector2Int>();
+        // register all cells in footprint
         for (int x = 0; x < footprintSize.x; x++)
             for (int y = 0; y < footprintSize.y; y++)
                 registeredCells.Add(origin + new Vector2Int(x, y));

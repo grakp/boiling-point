@@ -35,6 +35,7 @@ public class EmployeeMovement : MonoBehaviour
             GridManager.Instance.RemoveEmployee(employee);
     }
 
+    // set path to given list of cells and target
     public void SetPath(List<Vector2Int> newPath, IMovementTarget target = null)
     {
         path.Clear();
@@ -44,6 +45,7 @@ public class EmployeeMovement : MonoBehaviour
         destinationTarget = target;
     }
 
+    // set pending goal cell and target
     public void SetPendingGoal(Vector2Int goalCell, IMovementTarget target = null)
     {
         if (GridManager.Instance == null || employee == null) return;
@@ -63,21 +65,25 @@ public class EmployeeMovement : MonoBehaviour
         }
     }
 
+    // check if employee is moving
     public bool IsMoving => path != null && pathIndex < path.Count;
 
     void Update()
     {
         if (GridManager.Instance == null || employee == null || pathIndex >= path.Count) return;
 
+        // move employee towards waypoint
         Vector2 waypoint = GridManager.Instance.CellToWorld(path[pathIndex]);
         Vector2 pos = transform.position;
         float speed = tilesPerSecond * employee.SpeedMultiplier * Time.deltaTime;
         Vector2 next = Vector2.MoveTowards(pos, waypoint, speed);
         transform.position = new Vector3(next.x, next.y, transform.position.z);
 
+        // check if employee has arrived at waypoint
         if (Vector2.Distance(next, waypoint) <= arrivalThreshold)
         {
             var currentCell = path[pathIndex];
+            // set employee cell to current cell
             GridManager.Instance.SetEmployeeCell(employee, currentCell);
             pathIndex++;
             if (pathIndex >= path.Count)
@@ -85,9 +91,12 @@ public class EmployeeMovement : MonoBehaviour
                 OnArrived?.Invoke(employee, destinationTarget);
                 destinationTarget = null;
             }
+            // check if there is a pending goal cell
             if (pendingGoalCell.HasValue)
             {
+                // find path to pending goal cell
                 var newPath = Pathfinder.FindPath(currentCell, pendingGoalCell.Value, employee);
+                // if path is found, set path and clear pending goal cell and target
                 if (newPath.Count > 0)
                 {
                     SetPath(newPath, pendingGoalTarget);

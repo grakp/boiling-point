@@ -11,6 +11,7 @@ public class OrderQueueRowView : MonoBehaviour
         if (iconImage != null) iconImage.sprite = sprite;
     }
 
+    // set progress fill amount
     public void SetProgress(float normalized)
     {
         if (progressFillImage == null) return;

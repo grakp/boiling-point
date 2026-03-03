@@ -38,6 +38,7 @@ public class GridOverlay : MonoBehaviour
         gm.GetGridBounds(out int minX, out int minY, out int maxX, out int maxY);
         Vector2 originWorld = gm.CellToWorld(new Vector2Int(minX, minY)) - new Vector2(size * 0.5f, size * 0.5f);
 
+        // calculate number of vertices and indices
         int w = maxX - minX + 1;
         int h = maxY - minY + 1;
         int vertLines = w + 1;
@@ -46,10 +47,12 @@ public class GridOverlay : MonoBehaviour
         var vertices = new Vector3[lineCount * 2];
         var indices = new int[lineCount * 2];
 
+        // calculate maximum x and y world positions
         float maxXw = originWorld.x + (w + 1) * size;
         float maxYw = originWorld.y + (h + 1) * size;
         int v = 0;
 
+        // create vertical lines
         for (int i = 0; i <= w; i++)
         {
             float x = originWorld.x + i * size;
@@ -59,6 +62,7 @@ public class GridOverlay : MonoBehaviour
             indices[v + 1] = v + 1;
             v += 2;
         }
+        // create horizontal lines
         for (int j = 0; j <= h; j++)
         {
             float y = originWorld.y + j * size;
@@ -69,11 +73,13 @@ public class GridOverlay : MonoBehaviour
             v += 2;
         }
 
+        // create mesh
         var mesh = new Mesh { name = "GridOverlay" };
         mesh.SetVertices(vertices);
         mesh.SetIndices(indices, MeshTopology.Lines, 0);
         meshFilter.mesh = mesh;
 
+        // set material color and sorting order
         lineMaterial.color = lineColor;
         meshRenderer.sharedMaterial = lineMaterial;
         meshRenderer.sortingOrder = -100;

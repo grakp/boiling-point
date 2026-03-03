@@ -14,6 +14,7 @@ public class EmployeeActionMenu : MonoBehaviour
     Employee currentEmployee;
     [SerializeField] EmployeeSelectionManager selectionManager;
 
+    // show action menu for given station and employee
     public void Show(Station station, Employee employee, StationAction[] actions)
     {
         currentStation = station;
@@ -57,6 +58,7 @@ public class EmployeeActionMenu : MonoBehaviour
         gameObject.SetActive(true);
     }
 
+    // hide action menu
     public void Hide()
     {
         ClearButtons();
@@ -65,6 +67,7 @@ public class EmployeeActionMenu : MonoBehaviour
         currentEmployee = null;
     }
 
+    // clear all buttons
     void ClearButtons()
     {
         for (int i = 0; i < spawnedButtons.Count; i++)
@@ -75,21 +78,22 @@ public class EmployeeActionMenu : MonoBehaviour
         spawnedButtons.Clear();
     }
 
+    // handle action click
     public void HandleActionClick(StationAction action, bool repeat)
     {
         if (currentStation == null || action == null) return;
 
-        // Cancel in-progress manual work (refund inputs) and drop any other queued manual requests.
+        // cancel in-progress manual work (refund inputs) and drop any other queued manual requests
         currentStation.CancelManualWork();
         currentStation.ClearPendingManualRequests();
 
         var step = new TaskStep(action.RequiredStation, action.Duration, action.Inputs, action.Outputs);
 
+        // create new work request
         var request = new StationWorkRequest(null, -1, step, isRepeat: repeat);
-        var who = currentEmployee != null ? currentEmployee.name : "(no employee)";
-        Debug.Log($"[ActionMenu] {who} chose action '{action.ActionName}' on station '{currentStation.name}'.");
         currentStation.EnqueueWork(request);
 
+        // deselect employee
         if (selectionManager != null)
             selectionManager.DeselectEmployee();
         else
@@ -111,6 +115,7 @@ public class EmployeeActionMenuButtonHandler : MonoBehaviour, IPointerClickHandl
     public void OnPointerClick(PointerEventData eventData)
     {
         if (menu == null || action == null) return;
+        // handle right click for repeat action
         bool repeat = eventData.button == PointerEventData.InputButton.Right;
         menu.HandleActionClick(action, repeat);
     }

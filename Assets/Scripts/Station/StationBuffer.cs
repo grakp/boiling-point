@@ -37,12 +37,14 @@ public class StationBuffer : MonoBehaviour
             totalOutputs += Mathf.Max(0, outputs[i].amount);
 
         int current = inventory != null ? inventory.GetTotalAmount() : 0;
+        // check if total outputs can fit in buffer
         return current + totalOutputs <= maxTotalAmount;
     }
 
     public void AddItems(ItemStack[] stacks)
     {
         if (inventory == null || stacks == null) return;
+        // add items to inventory
         for (int i = 0; i < stacks.Length; i++)
             inventory.Add(stacks[i], maxTotalAmount);
     }
@@ -50,6 +52,7 @@ public class StationBuffer : MonoBehaviour
     public void RemoveItems(ItemStack[] stacks)
     {
         if (inventory == null || stacks == null) return;
+        // remove items from inventory
         for (int i = 0; i < stacks.Length; i++)
             inventory.Remove(stacks[i]);
     }
