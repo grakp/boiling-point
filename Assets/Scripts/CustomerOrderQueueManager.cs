@@ -39,7 +39,7 @@ public class CustomerOrderQueueManager : MonoBehaviour
         if (Time.time >= nextSpawnTime)
         {
             SpawnOrder();
-            nextSpawnTime = Time.time + Random.Range(spawnIntervalMin, spawnIntervalMax);
+            nextSpawnTime = Time.time + UnityEngine.Random.Range(spawnIntervalMin, spawnIntervalMax);
         }
 
         for (int i = orderQueue.Count - 1; i >= 0; i--)
@@ -57,8 +57,7 @@ public class CustomerOrderQueueManager : MonoBehaviour
     void SpawnOrder()
     {
         if (availableRecipes == null || availableRecipes.Length == 0) return;
-        // spawn random recipe from available recipes
-        var recipe = availableRecipes[Random.Range(0, availableRecipes.Length)];
+        var recipe = availableRecipes[UnityEngine.Random.Range(0, availableRecipes.Length)];
         if (recipe == null) return;
         orderQueue.Add(new CustomerOrder(recipe, patienceSeconds));
     }
