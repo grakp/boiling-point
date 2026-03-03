@@ -10,15 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5c74ab60d9de4d858687e89d8e7d70e, type: 3}
-  m_Name: ChopTomato
+  m_Name: WrapDumpling
   m_EditorClassIdentifier: Assembly-CSharp::StationAction
-  actionName: ChopTomato
-  icon: {fileID: -3540249428308944218, guid: a2588eaba6b1349ab873ea5311a8984f, type: 3}
-  requiredStation: 0
-  duration: 2
+  actionName: WrapDumpling
+  icon: {fileID: -4158626473055852092, guid: 793c0793644444a8180c632391f73ff1, type: 3}
+  requiredStation: 2
+  duration: 4
   inputs:
+  - type: 4
+    amount: 1
   - type: 2
     amount: 1
+  - type: 3
+    amount: 1
   outputs:
-  - type: 6
+  - type: 5
     amount: 1

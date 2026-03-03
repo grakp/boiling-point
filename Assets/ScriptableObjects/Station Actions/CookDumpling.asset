@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5c74ab60d9de4d858687e89d8e7d70e, type: 3}
-  m_Name: ChopLettuce
+  m_Name: CookDumpling
   m_EditorClassIdentifier: Assembly-CSharp::StationAction
-  actionName: ChopLettuce
-  icon: {fileID: 464763245185825334, guid: a2588eaba6b1349ab873ea5311a8984f, type: 3}
-  requiredStation: 0
-  duration: 2
+  actionName: CookDumpling
+  icon: {fileID: -5293142633517673630, guid: 793c0793644444a8180c632391f73ff1, type: 3}
+  requiredStation: 1
+  duration: 5
   inputs:
-  - type: 1
+  - type: 5
     amount: 1
   outputs:
-  - type: 5
+  - type: 6
     amount: 1

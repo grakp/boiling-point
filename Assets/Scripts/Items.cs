@@ -7,19 +7,19 @@ public enum ItemType
     None,
 
     // Raw ingredients
-    LettuceRaw,
-    TomatoRaw,
-    PattyRaw,
-    Bun,
+    ChivesRaw,
+    GroundPorkRaw,
+    DumplingWrapper,
 
     // Prepped
-    LettuceChopped,
-    TomatoChopped,
-    PattyCooked,
+    ChivesChopped,
+    DumplingWrapped,
+
+    // Cooked
+    DumplingCooked,
 
     // Dish states
-    AssembledBurger,
-    ServedBurger
+    DumplingServed,
 }
 
 [Serializable]

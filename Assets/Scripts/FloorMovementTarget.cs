@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
-public class WalkableFloor : MonoBehaviour, IMovementTarget
+public class FloorMovementTarget : MonoBehaviour, IMovementTarget
 {
     public Vector2 GetTargetPosition(Vector2? hitPoint = null)
     {

@@ -30,7 +30,9 @@ public class Order
             return;
         }
 
-        TaskStep step = recipe.Steps[currentStepIndex];
+        var action = recipe.Steps[currentStepIndex];
+        if (action == null) return;
+        TaskStep step = TaskStep.FromAction(action);
         Station station = getStation(step.RequiredStation);
         if (station == null)
         {

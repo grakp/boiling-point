@@ -286,7 +286,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2865088730774516925}
-  - component: {fileID: 2036105300783014093}
+  - component: {fileID: 787574084479775785}
   m_Layer: 0
   m_Name: BaseSprite
   m_TagString: Untagged
@@ -309,7 +309,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 301445321260111667}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &2036105300783014093
+--- !u!212 &787574084479775785
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
@@ -358,8 +358,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
+  m_Sprite: {fileID: 6512249174882899003, guid: 793c0793644444a8180c632391f73ff1, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

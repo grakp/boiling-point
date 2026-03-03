@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5c74ab60d9de4d858687e89d8e7d70e, type: 3}
-  m_Name: CookPatty
+  m_Name: ChopChives
   m_EditorClassIdentifier: Assembly-CSharp::StationAction
-  actionName: CookPatty
-  icon: {fileID: 9001654386446241022, guid: a2588eaba6b1349ab873ea5311a8984f, type: 3}
-  requiredStation: 1
-  duration: 3
+  actionName: ChopChives
+  icon: {fileID: -4101267242546094037, guid: 793c0793644444a8180c632391f73ff1, type: 3}
+  requiredStation: 0
+  duration: 2
   inputs:
-  - type: 3
+  - type: 1
     amount: 1
   outputs:
-  - type: 7
+  - type: 4
     amount: 1

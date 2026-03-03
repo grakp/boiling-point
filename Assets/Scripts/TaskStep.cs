@@ -23,4 +23,10 @@ public class TaskStep
         this.inputs = inputs;
         this.outputs = outputs;
     }
+
+    public static TaskStep FromAction(StationAction action)
+    {
+        if (action == null) return null;
+        return new TaskStep(action.RequiredStation, action.Duration, action.Inputs, action.Outputs);
+    }
 }

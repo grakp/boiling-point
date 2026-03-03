@@ -11,7 +11,6 @@ public class Station : MonoBehaviour, IMovementTarget
     [SerializeField] Transform progressFill;
     [SerializeField] Vector3 progressFillFullScale = Vector3.one;
     [SerializeField] Transform standPoint;
-    [SerializeField] SpriteRenderer highlightVisual;
     [SerializeField] StationBuffer inputBuffer;
     [SerializeField] StationBuffer outputBuffer;
     [SerializeField] PantryInventory pantry;
@@ -22,6 +21,7 @@ public class Station : MonoBehaviour, IMovementTarget
 
     readonly Queue<StationWorkRequest> workQueue = new();
     StationWorkRequest currentWork;
+    List<Vector2Int> registeredBlockedCells;
 
     public StationType Type => stationType;
     public GameObject AssignedEmployee => assignedEmployee;
@@ -46,6 +46,35 @@ public class Station : MonoBehaviour, IMovementTarget
     void Start()
     {
         SetProgressBarVisible(currentTask != null);
+        if (registeredBlockedCells == null) RegisterGridObstacle();
+    }
+
+    void OnEnable()
+    {
+        RegisterGridObstacle();
+    }
+
+    void OnDisable()
+    {
+        if (GridManager.Instance != null && registeredBlockedCells != null)
+        {
+            GridManager.Instance.UnregisterBlockedCells(registeredBlockedCells);
+            registeredBlockedCells = null;
+        }
+    }
+
+    void RegisterGridObstacle()
+    {
+        if (GridManager.Instance == null) return;
+        if (registeredBlockedCells != null) return;
+        var cells = new List<Vector2Int> { GridManager.Instance.WorldToCell(transform.position) };
+        if (standPoint != null)
+        {
+            var standCell = GridManager.Instance.WorldToCell(standPoint.position);
+            if (!cells.Contains(standCell)) cells.Add(standCell);
+        }
+        GridManager.Instance.RegisterBlockedCells(cells);
+        registeredBlockedCells = cells;
     }
 
     void SetProgressBarVisible(bool visible)
@@ -163,10 +192,7 @@ public class Station : MonoBehaviour, IMovementTarget
         return standPoint != null ? (Vector2)standPoint.position : (Vector2)transform.position;
     }
 
-    public void SetHoverHighlight(bool on)
-    {
-        if (highlightVisual != null) highlightVisual.enabled = on;
-    }
+    public void SetHoverHighlight(bool on) { }
 
     public void EnqueueWork(StationWorkRequest request)
     {

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e795e3331d1e04018a322e9ab25df8ab, type: 3}
+  m_Name: Dumpling
+  m_EditorClassIdentifier: Assembly-CSharp::Recipe
+  recipeName: Dumpling
+  baseCost: 10
+  displayIcon: {fileID: -5293142633517673630, guid: 793c0793644444a8180c632391f73ff1, type: 3}
+  steps:
+  - {fileID: 11400000, guid: 9d0400f0eea5e418da83df5806e8686b, type: 2}
+  - {fileID: 11400000, guid: 2bd5409af95144cf0b5246ef901d26ec, type: 2}
+  - {fileID: 11400000, guid: d429a56810ea949269cf0f3fdefd6663, type: 2}
+  - {fileID: 11400000, guid: 53fb0195fabc349be97e7b1168278831, type: 2}

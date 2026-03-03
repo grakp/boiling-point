@@ -10,7 +10,6 @@ public class EmployeeSelectionManager : MonoBehaviour
     [SerializeField] EmployeeActionMenu actionMenu;
 
     Employee selectedEmployee;
-    IMovementTarget lastHoveredTarget;
 
     public void DeselectEmployee()
     {
@@ -36,54 +35,17 @@ public class EmployeeSelectionManager : MonoBehaviour
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Employee hitEmployee = null;
-            IMovementTarget hitTarget = null;
-
-            foreach (var c in hits)
-            {
-                if (hitEmployee == null && HasTagInHierarchy(c.transform, EmployeeTag))
-                    hitEmployee = c.GetComponentInParent<Employee>();
-                if (hitTarget == null && HasTagInHierarchy(c.transform, MovementTargetTag))
-                    hitTarget = GetTransformWithTag(c.transform, MovementTargetTag)?.GetComponent<IMovementTarget>();
-            }
-
-            if (hitEmployee == null || hitTarget == null)
-            {
-                foreach (var c in hits)
-                {
-                    if (hitEmployee == null && c.GetComponentInParent<Employee>() is Employee e) hitEmployee = e;
-                    if (hitTarget == null && c.GetComponentInParent<IMovementTarget>() is IMovementTarget t) hitTarget = t;
-                }
-            }
-
-            if (hitTarget != null && selectedEmployee != null)
-            {
-                Station hitStation = null;
-                foreach (var c in hits)
-                {
-                    if (c.GetComponentInParent<Station>() is Station s)
-                    {
-                        hitStation = s;
-                        break;
-                    }
-                }
-                if (hitStation != null)
-                    hitTarget = hitStation;
-            }
-
+            Employee hitEmployee = GetHitEmployee(hits);
             if (hitEmployee != null)
             {
                 if (selectedEmployee == hitEmployee)
-                {
                     DeselectEmployee();
-                }
                 else
                 {
                     if (selectedEmployee != null)
                         selectedEmployee.SetSelected(false);
                     selectedEmployee = hitEmployee;
                     selectedEmployee.SetSelected(true);
-
                     if (actionMenu != null)
                     {
                         foreach (var station in Object.FindObjectsByType<Station>(FindObjectsSortMode.None))
@@ -98,41 +60,74 @@ public class EmployeeSelectionManager : MonoBehaviour
                     }
                 }
             }
-            else if (hitTarget != null && selectedEmployee != null)
-            {
-                UnassignFromStations(selectedEmployee.gameObject);
-                Vector2 targetPos = hitTarget.GetTargetPosition(worldPos);
-                selectedEmployee.transform.position = new Vector3(targetPos.x, targetPos.y, selectedEmployee.transform.position.z);
-
-                if (hitTarget is Station station)
-                {
-                    station.AssignEmployee(selectedEmployee.gameObject);
-                    if (actionMenu != null && station.AvailableActions != null && station.AvailableActions.Length > 0)
-                        actionMenu.Show(station, selectedEmployee, station.AvailableActions);
-                }
-                else if (actionMenu != null)
-                {
-                    actionMenu.Hide();
-                }
-            }
         }
 
-        IMovementTarget hoveredTarget = null;
+        if (Mouse.current.rightButton.wasPressedThisFrame && selectedEmployee != null)
+        {
+            var movement = selectedEmployee.GetComponent<EmployeeMovement>();
+            if (movement != null && GridManager.Instance != null)
+            {
+                IMovementTarget hitTarget = GetHitMovementTarget(hits);
+                Vector2Int goalCell;
+                Vector2 targetWorld;
+                IMovementTarget pathTarget = null;
+                if (hitTarget != null)
+                {
+                    Station hitStation = null;
+                    foreach (var c in hits)
+                    {
+                        if (c.GetComponentInParent<Station>() is Station s) { hitStation = s; break; }
+                    }
+                    pathTarget = hitStation != null ? (IMovementTarget)hitStation : hitTarget;
+                    targetWorld = pathTarget.GetTargetPosition(worldPos);
+                    goalCell = GridManager.Instance.WorldToCell(targetWorld);
+                }
+                else
+                {
+                    goalCell = GridManager.Instance.WorldToCell(worldPos);
+                    targetWorld = (Vector2)GridManager.Instance.CellToWorld(goalCell);
+                }
+                if (!GridManager.Instance.IsInBounds(goalCell))
+                {
+                    var snapped = GridManager.Instance.GetNearestWalkableCell(goalCell);
+                    if (!snapped.HasValue) return;
+                    goalCell = snapped.Value;
+                    targetWorld = (Vector2)GridManager.Instance.CellToWorld(goalCell);
+                }
+                UnassignFromStations(selectedEmployee.gameObject);
+                movement.OnArrived -= HandleEmployeeArrived;
+                movement.OnArrived += HandleEmployeeArrived;
+                movement.SetPendingGoal(goalCell, pathTarget);
+            }
+        }
+    }
+
+    static Employee GetHitEmployee(Collider2D[] hits)
+    {
+        foreach (var c in hits)
+        {
+            if (HasTagInHierarchy(c.transform, EmployeeTag))
+                return c.GetComponentInParent<Employee>();
+        }
+        foreach (var c in hits)
+        {
+            if (c.GetComponentInParent<Employee>() is Employee e) return e;
+        }
+        return null;
+    }
+
+    static IMovementTarget GetHitMovementTarget(Collider2D[] hits)
+    {
         foreach (var c in hits)
         {
             if (HasTagInHierarchy(c.transform, MovementTargetTag))
-                hoveredTarget = GetTransformWithTag(c.transform, MovementTargetTag)?.GetComponent<IMovementTarget>();
-            if (hoveredTarget == null && c.GetComponentInParent<IMovementTarget>() is IMovementTarget t)
-                hoveredTarget = t;
-            if (hoveredTarget != null) break;
+                return GetTransformWithTag(c.transform, MovementTargetTag)?.GetComponent<IMovementTarget>();
         }
-
-        if (hoveredTarget != lastHoveredTarget)
+        foreach (var c in hits)
         {
-            if (lastHoveredTarget != null) lastHoveredTarget.SetHoverHighlight(false);
-            lastHoveredTarget = hoveredTarget;
-            if (lastHoveredTarget != null) lastHoveredTarget.SetHoverHighlight(true);
+            if (c.GetComponentInParent<IMovementTarget>() is IMovementTarget t) return t;
         }
+        return null;
     }
 
     static bool HasTagInHierarchy(Transform t, string tag)
@@ -153,6 +148,20 @@ public class EmployeeSelectionManager : MonoBehaviour
             t = t.parent;
         }
         return null;
+    }
+
+    void HandleEmployeeArrived(Employee emp, IMovementTarget target)
+    {
+        var movement = emp.GetComponent<EmployeeMovement>();
+        if (movement != null) movement.OnArrived -= HandleEmployeeArrived;
+        if (target is Station station)
+        {
+            station.AssignEmployee(emp.gameObject);
+            if (actionMenu != null && station.AvailableActions != null && station.AvailableActions.Length > 0)
+                actionMenu.Show(station, emp, station.AvailableActions);
+        }
+        else if (actionMenu != null)
+            actionMenu.Hide();
     }
 
     static void UnassignFromStations(GameObject employee)
