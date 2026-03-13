@@ -10,6 +10,8 @@ public class GridManager : MonoBehaviour
     [SerializeField] Tilemap floorTilemap;
     [SerializeField] Tilemap obstacleTilemap;
 
+    public Tilemap FloorTilemap => floorTilemap;
+
     // set of cells that are blocked (obstacles or occupied by employees)
     readonly HashSet<Vector2Int> blockedCells = new();
     readonly Dictionary<Employee, Vector2Int> employeeCells = new();

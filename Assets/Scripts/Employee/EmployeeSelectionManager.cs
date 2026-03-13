@@ -8,13 +8,25 @@ public class EmployeeSelectionManager : MonoBehaviour
     const string MovementTargetTag = "MovementTarget";
 
     [SerializeField] EmployeeActionMenu actionMenu;
+    [SerializeField] Color hoverHighlightColour = Color.white;
+    [SerializeField] Color selectedHighlightColour = new Color(1f, 1f, 0.6f);
+    [Tooltip("Optional: Grid or Tilemap to ignore for hover/click so floor tiles underneath are hit instead.")]
+    [SerializeField] Transform ignoreForHover;
 
     Employee selectedEmployee;
+    IHoverable lastHovered;
+    IHoverable highlightSelected;
 
     public void DeselectEmployee()
     {
         if (selectedEmployee != null)
             selectedEmployee.SetSelected(false);
+
+        if (highlightSelected != null)
+        {
+            highlightSelected.SetHoverHighlight(false, default);
+            highlightSelected = null;
+        }
 
         selectedEmployee = null;
 
@@ -33,10 +45,36 @@ public class EmployeeSelectionManager : MonoBehaviour
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
         Collider2D[] hits = Physics2D.OverlapPointAll(worldPos);
 
-        // handle left click to select employee
+        IHoverable hovered = GetHovered(hits, ignoreForHover);
+        if (hovered is FloorMovementTarget && selectedEmployee == null)
+            hovered = null;
+        if (hovered != lastHovered)
+        {
+            if (lastHovered != null && lastHovered != highlightSelected)
+                lastHovered.SetHoverHighlight(false, default);
+            lastHovered = hovered;
+            if (hovered != null)
+                hovered.SetHoverHighlight(true, hovered == highlightSelected ? selectedHighlightColour : hoverHighlightColour);
+        }
+
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Employee hitEmployee = GetHitEmployee(hits);
+            if (hovered != null)
+            {
+                if (highlightSelected != hovered)
+                {
+                    highlightSelected?.SetHoverHighlight(false, default);
+                    highlightSelected = hovered;
+                    highlightSelected.SetHoverHighlight(true, selectedHighlightColour);
+                }
+            }
+            else
+            {
+                highlightSelected?.SetHoverHighlight(false, default);
+                highlightSelected = null;
+            }
+
+            Employee hitEmployee = hovered as Employee ?? GetHitEmployee(hits);
             if (hitEmployee != null)
             {
                 if (selectedEmployee == hitEmployee)
@@ -61,6 +99,11 @@ public class EmployeeSelectionManager : MonoBehaviour
                     }
                 }
             }
+            else
+            {
+                // Clicked something that isn't an employee: fully clear selection
+                DeselectEmployee();
+            }
         }
 
         // handle right click to move employee to target
@@ -69,7 +112,7 @@ public class EmployeeSelectionManager : MonoBehaviour
             var movement = selectedEmployee.GetComponent<EmployeeMovement>();
             if (movement != null && GridManager.Instance != null)
             {
-                IMovementTarget hitTarget = GetHitMovementTarget(hits);
+                IMovementTarget hitTarget = GetHitMovementTarget(hits, ignoreForHover);
                 Vector2Int goalCell;
                 Vector2 targetWorld;
                 IMovementTarget pathTarget = null;
@@ -120,15 +163,24 @@ public class EmployeeSelectionManager : MonoBehaviour
         return null;
     }
 
-    static IMovementTarget GetHitMovementTarget(Collider2D[] hits)
+    static IHoverable GetHovered(Collider2D[] hits, Transform ignoreForHover)
+    {
+        var employee = GetHitEmployee(hits);
+        if (employee != null) return employee;
+        return GetHitMovementTarget(hits, ignoreForHover);
+    }
+
+    static IMovementTarget GetHitMovementTarget(Collider2D[] hits, Transform ignoreForHover)
     {
         foreach (var c in hits)
         {
+            if (ignoreForHover != null && c.transform.IsChildOf(ignoreForHover)) continue;
             if (HasTagInHierarchy(c.transform, MovementTargetTag))
                 return GetTransformWithTag(c.transform, MovementTargetTag)?.GetComponent<IMovementTarget>();
         }
         foreach (var c in hits)
         {
+            if (ignoreForHover != null && c.transform.IsChildOf(ignoreForHover)) continue;
             if (c.GetComponentInParent<IMovementTarget>() is IMovementTarget t) return t;
         }
         return null;

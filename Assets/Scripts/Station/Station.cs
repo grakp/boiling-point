@@ -194,7 +194,11 @@ public class Station : MonoBehaviour, IMovementTarget
         return standPoint != null ? (Vector2)standPoint.position : (Vector2)transform.position;
     }
 
-    public void SetHoverHighlight(bool on) { }
+    public void SetHoverHighlight(bool on, Color colour)
+    {
+        var renderers = GetComponentsInChildren<SpriteRenderer>(true);
+        HoverHighlightHelper.ApplyHighlight(renderers, on, colour);
+    }
 
     public void EnqueueWork(StationWorkRequest request)
     {

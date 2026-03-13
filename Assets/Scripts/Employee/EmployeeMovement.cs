@@ -72,11 +72,11 @@ public class EmployeeMovement : MonoBehaviour
     {
         if (GridManager.Instance == null || employee == null || pathIndex >= path.Count) return;
 
-        // move employee towards waypoint
         Vector2 waypoint = GridManager.Instance.CellToWorld(path[pathIndex]);
         Vector2 pos = transform.position;
         float speed = tilesPerSecond * employee.SpeedMultiplier * Time.deltaTime;
-        Vector2 next = Vector2.MoveTowards(pos, waypoint, speed);
+        float dist = Vector2.Distance(pos, waypoint);
+        Vector2 next = dist <= speed ? waypoint : Vector2.MoveTowards(pos, waypoint, speed);
         transform.position = new Vector3(next.x, next.y, transform.position.z);
 
         // check if employee has arrived at waypoint
